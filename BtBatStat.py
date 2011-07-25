@@ -44,15 +44,17 @@ class Timer(NSObject):
     self.timer.fire()
 
   def tick_(self, notification):
-    KeyBatStatCmd = subprocess.Popen(["ioreg -n 'IOAppleBluetoothHIDDriver'"], stdout=subprocess.PIPE, shell=True)
-    KeyBatStatCmdOut = re.search('BatteryPercent" = (\d{1,2})', KeyBatStatCmd.communicate()[0])
+    KeyBatStatCmd = subprocess.Popen(["ioreg -n 'IOAppleBluetoothHIDDriver'"], stdout=subprocess.PIPE, shell=True).communicate()[0]
+    KeyBatStatCmdOut = re.search('BatteryPercent" = (\d{1,2})', KeyBatStatCmd)
     if KeyBatStatCmdOut:
 	KeyBatStat = KeyBatStatCmdOut.group(1)
     else:
 	KeyBatStat = None
 
-    MouseBatStatCmd = subprocess.Popen(["ioreg -n 'AppleBluetoothHIDMouse'"], stdout=subprocess.PIPE, shell=True)
-    MouseBatStatCmdOut = re.search('BatteryPercent" = (\d{1,2})', MouseBatStatCmd.communicate()[0])
+    MouseBatStatCmd = subprocess.Popen(["ioreg -rc 'AppleBluetoothHIDMouse'"], stdout=subprocess.PIPE, shell=True).communicate()[0]
+    if MouseBatStatCmd == "":
+        MouseBatStatCmd = subprocess.Popen(["ioreg -rc 'BNBMouseDevice'"], stdout=subprocess.PIPE, shell=True).communicate()[0]
+    MouseBatStatCmdOut = re.search('BatteryPercent" = (\d{1,2})', MouseBatStatCmd)
     if MouseBatStatCmdOut:
 	MouseBatStat = MouseBatStatCmdOut.group(1)
     else:
