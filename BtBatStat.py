@@ -1,12 +1,20 @@
 #!/usr/bin/python
 
-import subprocess,re
+import subprocess,re,time
 from Foundation import *
 from AppKit import *
 from PyObjCTools import AppHelper
+from optparse import OptionParser
+
+debug = None
+parser = OptionParser()
+parser.add_option("-d", action="store_true", dest="debug")
+(options, args)= parser.parse_args()
+
+if options.debug is True:
+  debug = 1
 
 start_time = NSDate.date()
-
 
 class Timer(NSObject):
   statusbar = None
@@ -33,6 +41,9 @@ class Timer(NSObject):
     self.timer.fire()
 
   def tick_(self, notification):
+    if debug:
+	start = time.clock()
+
     KeyBatStatCmd = subprocess.Popen(["/usr/sbin/ioreg", "-n", "IOAppleBluetoothHIDDriver"], stdout=subprocess.PIPE).communicate()[0]
     KeyBatStatCmdOut = re.search('BatteryPercent" = (\d{1,2})', KeyBatStatCmd)
     if KeyBatStatCmdOut:
@@ -97,7 +108,11 @@ class Timer(NSObject):
         self.noDevice.setToolTip_('BtBatStat: No Apple mouse or keyboard found!')
     elif (self.MouseBat is not None or self.KeyBat is not None) and self.noDevice is not None:
 	self.statusbar.removeStatusItem_(self.noDevice)
-	self.noDevice = None	
+	self.noDevice = None
+
+    if debug:
+	end = time.clock()
+	print "Time elapsed = ", end - start, "seconds"
 
 if __name__ == "__main__":
   app = NSApplication.sharedApplication()
