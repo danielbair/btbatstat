@@ -10,28 +10,20 @@ start_time = NSDate.date()
 
 class Timer(NSObject):
   statusbar = None
+  KeyBat = None
+  MouseBat = None
+  noDevice = None
 
   # Load images
   kbImage = NSImage.alloc().initByReferencingFile_('kb.png')
   mouseImage = NSImage.alloc().initByReferencingFile_('mouse.png')
+  noDeviceImage = NSImage.alloc().initByReferencingFile_('no_device.png')
 
   def applicationDidFinishLaunching_(self, notification):
     self.statusbar = NSStatusBar.systemStatusBar()
-    # Create the statusbar item
-    self.MouseBat = self.statusbar.statusItemWithLength_(NSVariableStatusItemLength)
-    self.KeyBat = self.statusbar.statusItemWithLength_(NSVariableStatusItemLength)
-    # Set initial image
-    self.KeyBat.setImage_(self.kbImage)
-    self.MouseBat.setImage_(self.mouseImage)
-
-    #Context Menu
-    self.KeyBat.setHighlightMode_(1)
-    self.MouseBat.setHighlightMode_(1)
     self.menu = NSMenu.alloc().init()
     menuitem = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_('Quit', 'terminate:', '')
     self.menu.addItem_(menuitem)
-    self.KeyBat.setMenu_(self.menu)
-    self.MouseBat.setMenu_(self.menu)
 
     # Get the timer going
     self.timer = NSTimer.alloc().initWithFireDate_interval_target_selector_userInfo_repeats_(start_time, 5.0, self, 'tick:', None, True)
@@ -59,6 +51,8 @@ class Timer(NSObject):
       if self.MouseBat is None:
         self.MouseBat = self.statusbar.statusItemWithLength_(NSVariableStatusItemLength)
 	self.MouseBat.setImage_(self.mouseImage)
+        self.MouseBat.setHighlightMode_(1)
+        self.MouseBat.setMenu_(self.menu)
       self.MouseBat.setTitle_(MouseBatStat +'%')
     elif self.MouseBat is not None:
       self.statusbar.removeStatusItem_(self.MouseBat)
@@ -68,10 +62,22 @@ class Timer(NSObject):
       if self.KeyBat is None:
         self.KeyBat = self.statusbar.statusItemWithLength_(NSVariableStatusItemLength)
 	self.KeyBat.setImage_(self.kbImage)
+        self.KeyBat.setHighlightMode_(1)
+        self.KeyBat.setMenu_(self.menu)
       self.KeyBat.setTitle_(KeyBatStat +'%')
     elif self.KeyBat is not None:
       self.statusbar.removeStatusItem_(self.KeyBat)
       self.KeyBat = None
+
+    if self.MouseBat is None and self.KeyBat is None:
+	self.noDevice = self.statusbar.statusItemWithLength_(NSVariableStatusItemLength)
+	self.noDevice.setImage_(self.noDeviceImage)
+        self.noDevice.setHighlightMode_(1)
+        self.noDevice.setMenu_(self.menu)
+        self.noDevice.setToolTip_('BtBatStat: No Apple mouse or keyboard found!')
+    elif (self.MouseBat is not None or self.KeyBat is not None) and self.noDevice is not None:
+	self.statusbar.removeStatusItem_(self.noDevice)
+	self.noDevice = None	
 
 if __name__ == "__main__":
   app = NSApplication.sharedApplication()
