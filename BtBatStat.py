@@ -12,11 +12,13 @@ class Timer(NSObject):
   statusbar = None
   KeyBat = None
   MouseBat = None
+  TPBat = None
   noDevice = None
 
   # Load images
   kbImage = NSImage.alloc().initByReferencingFile_('kb.png')
   mouseImage = NSImage.alloc().initByReferencingFile_('mouse.png')
+  tpImage = NSImage.alloc().initByReferencingFile_('TrackpadIcon.png')
   noDeviceImage = NSImage.alloc().initByReferencingFile_('no_device.png')
 
   def applicationDidFinishLaunching_(self, notification):
@@ -41,13 +43,29 @@ class Timer(NSObject):
     MouseBatStatCmd = subprocess.Popen(["ioreg -rc 'AppleBluetoothHIDMouse'"], stdout=subprocess.PIPE, shell=True).communicate()[0]
     if MouseBatStatCmd == "":
         MouseBatStatCmd = subprocess.Popen(["ioreg -rc 'BNBMouseDevice'"], stdout=subprocess.PIPE, shell=True).communicate()[0]
-    if MouseBatStatCmd == "":
-        MouseBatStatCmd = subprocess.Popen(["ioreg -rc 'BNBTrackpadDevice'"], stdout=subprocess.PIPE, shell=True).communicate()[0]
     MouseBatStatCmdOut = re.search('BatteryPercent" = (\d{1,2})', MouseBatStatCmd)
     if MouseBatStatCmdOut:
 	MouseBatStat = MouseBatStatCmdOut.group(1)
     else:
 	MouseBatStat = None
+
+    TPBatStatCmd = subprocess.Popen(["ioreg -rc 'BNBTrackpadDevice'"], stdout=subprocess.PIPE, shell=True).communicate()[0]
+    TPBatStatCmdOut = re.search('BatteryPercent" = (\d{1,2})', TPBatStatCmd)
+    if TPBatStatCmdOut:
+	TPBatStat = TPBatStatCmdOut.group(1)
+    else:
+	TPBatStat = None
+
+    if KeyBatStat:
+      if self.KeyBat is None:
+        self.KeyBat = self.statusbar.statusItemWithLength_(NSVariableStatusItemLength)
+	self.KeyBat.setImage_(self.kbImage)
+        self.KeyBat.setHighlightMode_(1)
+        self.KeyBat.setMenu_(self.menu)
+      self.KeyBat.setTitle_(KeyBatStat +'%')
+    elif self.KeyBat is not None:
+      self.statusbar.removeStatusItem_(self.KeyBat)
+      self.KeyBat = None
 
     if MouseBatStat:
       if self.MouseBat is None:
@@ -60,16 +78,16 @@ class Timer(NSObject):
       self.statusbar.removeStatusItem_(self.MouseBat)
       self.MouseBat = None
 
-    if KeyBatStat:
-      if self.KeyBat is None:
-        self.KeyBat = self.statusbar.statusItemWithLength_(NSVariableStatusItemLength)
-	self.KeyBat.setImage_(self.kbImage)
-        self.KeyBat.setHighlightMode_(1)
-        self.KeyBat.setMenu_(self.menu)
-      self.KeyBat.setTitle_(KeyBatStat +'%')
-    elif self.KeyBat is not None:
-      self.statusbar.removeStatusItem_(self.KeyBat)
-      self.KeyBat = None
+    if TPBatStat:
+      if self.TPBat is None:
+        self.TPBat = self.statusbar.statusItemWithLength_(NSVariableStatusItemLength)
+	self.TPBat.setImage_(self.tpImage)
+        self.TPBat.setHighlightMode_(1)
+        self.TPBat.setMenu_(self.menu)
+      self.TPBat.setTitle_(TPBatStat +'%')
+    elif self.TPBat is not None:
+      self.statusbar.removeStatusItem_(self.TPBat)
+      self.TPBat = None
 
     if self.MouseBat is None and self.KeyBat is None and self.noDevice is None:
 	self.noDevice = self.statusbar.statusItemWithLength_(NSVariableStatusItemLength)
