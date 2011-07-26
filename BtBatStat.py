@@ -71,7 +71,7 @@ class Timer(NSObject):
       self.statusbar.removeStatusItem_(self.KeyBat)
       self.KeyBat = None
 
-    if self.MouseBat is None and self.KeyBat is None:
+    if self.MouseBat is None and self.KeyBat is None and self.noDevice is None:
 	self.noDevice = self.statusbar.statusItemWithLength_(NSVariableStatusItemLength)
 	self.noDevice.setImage_(self.noDeviceImage)
         self.noDevice.setHighlightMode_(1)
