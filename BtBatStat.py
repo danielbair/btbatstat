@@ -42,7 +42,7 @@ class Timer(NSObject):
 
   def tick_(self, notification):
     if debug:
-	start = time.clock()
+	start = time.time()
 
     KeyBatStatCmd = subprocess.Popen(["/usr/sbin/ioreg", "-n", "IOAppleBluetoothHIDDriver"], stdout=subprocess.PIPE).communicate()[0]
     KeyBatStatCmdOut = re.search('BatteryPercent" = (\d{1,2})', KeyBatStatCmd)
@@ -119,7 +119,7 @@ class Timer(NSObject):
 	self.noDevice = None
 
     if debug:
-	end = time.clock()
+	end = time.time()
 	print "Time elapsed = ", end - start, "seconds"
 
 if __name__ == "__main__":
