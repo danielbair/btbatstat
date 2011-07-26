@@ -6,9 +6,10 @@ Usage:
 """
 from setuptools import setup
 
-
+DATAFILES = ['kb.png', 'mouse.png']
 setup(
     app=["BtBatStat.py"],
+    data_files=DATAFILES,
     options=dict(py2app=dict(
         plist=dict(
             LSUIElement=True,
