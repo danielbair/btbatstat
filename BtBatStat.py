@@ -41,6 +41,8 @@ class Timer(NSObject):
     MouseBatStatCmd = subprocess.Popen(["ioreg -rc 'AppleBluetoothHIDMouse'"], stdout=subprocess.PIPE, shell=True).communicate()[0]
     if MouseBatStatCmd == "":
         MouseBatStatCmd = subprocess.Popen(["ioreg -rc 'BNBMouseDevice'"], stdout=subprocess.PIPE, shell=True).communicate()[0]
+    if MouseBatStatCmd == "":
+        MouseBatStatCmd = subprocess.Popen(["ioreg -rc 'BNBTrackpadDevice'"], stdout=subprocess.PIPE, shell=True).communicate()[0]
     MouseBatStatCmdOut = re.search('BatteryPercent" = (\d{1,2})', MouseBatStatCmd)
     if MouseBatStatCmdOut:
 	MouseBatStat = MouseBatStatCmdOut.group(1)
