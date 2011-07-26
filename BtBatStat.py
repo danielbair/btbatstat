@@ -49,7 +49,7 @@ class Timer(NSObject):
     if KeyBatStatCmdOut:
 	KeyBatStat = KeyBatStatCmdOut.group(1)
         if debug:
-            print "Keyboard battery: ", KeyBatStatCmdOut
+            print "Keyboard battery: ", KeyBatStat
     else:
 	KeyBatStat = None
 
@@ -60,7 +60,7 @@ class Timer(NSObject):
     if MouseBatStatCmdOut:
 	MouseBatStat = MouseBatStatCmdOut.group(1)
         if debug:
-            print "Mouse battery: ", KeyBatStatCmdOut
+            print "Mouse battery: ", KeyBatStat
     else:
 	MouseBatStat = None
 
@@ -69,7 +69,7 @@ class Timer(NSObject):
     if TPBatStatCmdOut:
 	TPBatStat = TPBatStatCmdOut.group(1)
         if debug:
-            print "Trackpad battery: ", KeyBatStatCmdOut
+            print "Trackpad battery: ", KeyBatStat
     else:
 	TPBatStat = None
 
