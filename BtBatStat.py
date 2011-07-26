@@ -33,23 +33,23 @@ class Timer(NSObject):
     self.timer.fire()
 
   def tick_(self, notification):
-    KeyBatStatCmd = subprocess.Popen(["ioreg -n 'IOAppleBluetoothHIDDriver'"], stdout=subprocess.PIPE, shell=True).communicate()[0]
+    KeyBatStatCmd = subprocess.Popen(["/usr/sbin/ioreg", "-n", "IOAppleBluetoothHIDDriver"], stdout=subprocess.PIPE).communicate()[0]
     KeyBatStatCmdOut = re.search('BatteryPercent" = (\d{1,2})', KeyBatStatCmd)
     if KeyBatStatCmdOut:
 	KeyBatStat = KeyBatStatCmdOut.group(1)
     else:
 	KeyBatStat = None
 
-    MouseBatStatCmd = subprocess.Popen(["ioreg -rc 'AppleBluetoothHIDMouse'"], stdout=subprocess.PIPE, shell=True).communicate()[0]
+    MouseBatStatCmd = subprocess.Popen(["ioreg", "-rc", "AppleBluetoothHIDMouse"], stdout=subprocess.PIPE).communicate()[0]
     if MouseBatStatCmd == "":
-        MouseBatStatCmd = subprocess.Popen(["ioreg -rc 'BNBMouseDevice'"], stdout=subprocess.PIPE, shell=True).communicate()[0]
+        MouseBatStatCmd = subprocess.Popen(["ioreg", "-rc", "BNBMouseDevice"], stdout=subprocess.PIPE).communicate()[0]
     MouseBatStatCmdOut = re.search('BatteryPercent" = (\d{1,2})', MouseBatStatCmd)
     if MouseBatStatCmdOut:
 	MouseBatStat = MouseBatStatCmdOut.group(1)
     else:
 	MouseBatStat = None
 
-    TPBatStatCmd = subprocess.Popen(["ioreg -rc 'BNBTrackpadDevice'"], stdout=subprocess.PIPE, shell=True).communicate()[0]
+    TPBatStatCmd = subprocess.Popen(["ioreg", "-rc", "BNBTrackpadDevice"], stdout=subprocess.PIPE).communicate()[0]
     TPBatStatCmdOut = re.search('BatteryPercent" = (\d{1,2})', TPBatStatCmd)
     if TPBatStatCmdOut:
 	TPBatStat = TPBatStatCmdOut.group(1)
@@ -89,7 +89,7 @@ class Timer(NSObject):
       self.statusbar.removeStatusItem_(self.TPBat)
       self.TPBat = None
 
-    if self.MouseBat is None and self.KeyBat is None and self.noDevice is None:
+    if self.MouseBat is None and self.KeyBat is None and self.TPBat is None and self.noDevice is None:
 	self.noDevice = self.statusbar.statusItemWithLength_(NSVariableStatusItemLength)
 	self.noDevice.setImage_(self.noDeviceImage)
         self.noDevice.setHighlightMode_(1)
