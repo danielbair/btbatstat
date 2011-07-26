@@ -48,6 +48,8 @@ class Timer(NSObject):
     KeyBatStatCmdOut = re.search('BatteryPercent" = (\d{1,2})', KeyBatStatCmd)
     if KeyBatStatCmdOut:
 	KeyBatStat = KeyBatStatCmdOut.group(1)
+        if debug:
+            print "Keyboard battery: ", KeyBatStatCmdOut
     else:
 	KeyBatStat = None
 
@@ -57,6 +59,8 @@ class Timer(NSObject):
     MouseBatStatCmdOut = re.search('BatteryPercent" = (\d{1,2})', MouseBatStatCmd)
     if MouseBatStatCmdOut:
 	MouseBatStat = MouseBatStatCmdOut.group(1)
+        if debug:
+            print "Mouse battery: ", KeyBatStatCmdOut
     else:
 	MouseBatStat = None
 
@@ -64,6 +68,8 @@ class Timer(NSObject):
     TPBatStatCmdOut = re.search('BatteryPercent" = (\d{1,2})', TPBatStatCmd)
     if TPBatStatCmdOut:
 	TPBatStat = TPBatStatCmdOut.group(1)
+        if debug:
+            print "Trackpad battery: ", KeyBatStatCmdOut
     else:
 	TPBatStat = None
 
@@ -73,6 +79,8 @@ class Timer(NSObject):
 	self.KeyBat.setImage_(self.kbImage)
         self.KeyBat.setHighlightMode_(1)
         self.KeyBat.setMenu_(self.menu)
+        if debug:
+            print "No device found..."
       self.KeyBat.setTitle_(KeyBatStat +'%')
     elif self.KeyBat is not None:
       self.statusbar.removeStatusItem_(self.KeyBat)
