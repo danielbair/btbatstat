@@ -1,10 +1,13 @@
 #!/usr/bin/python
 
-import subprocess,re,time
+import subprocess,re,time,sys,webbrowser
 from Foundation import *
 from AppKit import *
 from PyObjCTools import AppHelper
 from optparse import OptionParser
+
+if len(sys.argv) > 1 and sys.argv[1][:4] == '-psn':
+  del sys.argv[1]
 
 debug = None
 parser = OptionParser()
@@ -29,11 +32,21 @@ class Timer(NSObject):
   tpImage = NSImage.alloc().initByReferencingFile_('TrackpadIcon.png')
   noDeviceImage = NSImage.alloc().initByReferencingFile_('no_device.png')
 
+  def website_(self, notification):
+    webbrowser.open("http://code.google.com/p/btbatstat/")
+
   def applicationDidFinishLaunching_(self, notification):
+    #Define menu items
     self.statusbar = NSStatusBar.systemStatusBar()
+    menuAppName = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_('BtBatStat', 'website:', '')
+    self.separator_menu_item = NSMenuItem.separatorItem()
+    menuQuit = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_('Quit', 'terminate:', '')
+
+    #Create menu
     self.menu = NSMenu.alloc().init()
-    menuitem = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_('Quit', 'terminate:', '')
-    self.menu.addItem_(menuitem)
+    self.menu.addItem_(menuAppName)
+    self.menu.addItem_(self.separator_menu_item)
+    self.menu.addItem_(menuQuit)
 
     # Get the timer going
     self.timer = NSTimer.alloc().initWithFireDate_interval_target_selector_userInfo_repeats_(start_time, 5.0, self, 'tick:', None, True)
