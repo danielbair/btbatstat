@@ -9,7 +9,7 @@ if [ -d dist ] ; then
 fi
 
 #Build App
-python setup.py py2app --iconfile BtBatStat.icns
+python setup.py py2app
 
 #Zip App
 cd dist
