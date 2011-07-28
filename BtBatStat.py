@@ -1,5 +1,3 @@
-#!/usr/bin/python
-
 import subprocess,re,time,sys,webbrowser
 from Foundation import *
 from AppKit import *
