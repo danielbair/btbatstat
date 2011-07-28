@@ -6,7 +6,7 @@ Usage:
 """
 from setuptools import setup
 
-DATAFILES = ['kb.png', 'mighty_mouse.png', 'magic_mouse.png', 'TrackpadIcon.png', 'no_device.png', 'BtBatStat.icns']
+DATAFILES = ['icons', 'BtBatStat.icns']
 setup(
     app=["BtBatStat.py"],
     data_files=DATAFILES,

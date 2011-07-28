@@ -26,11 +26,11 @@ class Timer(NSObject):
   noDevice = None
 
   # Load images
-  kbImage = NSImage.alloc().initByReferencingFile_('kb.png')
-  magicImage = NSImage.alloc().initByReferencingFile_('magic_mouse.png')
-  mightyImage = NSImage.alloc().initByReferencingFile_('mighty_mouse.png')
-  tpImage = NSImage.alloc().initByReferencingFile_('TrackpadIcon.png')
-  noDeviceImage = NSImage.alloc().initByReferencingFile_('no_device.png')
+  kbImage = NSImage.alloc().initByReferencingFile_('icons/kb.png')
+  magicImage = NSImage.alloc().initByReferencingFile_('icons/magic_mouse.png')
+  mightyImage = NSImage.alloc().initByReferencingFile_('icons/mighty_mouse.png')
+  tpImage = NSImage.alloc().initByReferencingFile_('icons/TrackpadIcon.png')
+  noDeviceImage = NSImage.alloc().initByReferencingFile_('icons/no_device.png')
 
   def website_(self, notification):
     webbrowser.open("http://code.google.com/p/btbatstat/")
@@ -57,7 +57,7 @@ class Timer(NSObject):
     if debug:
 	start = time.time()
 
-    KeyBatStatCmd = subprocess.Popen(["/usr/sbin/ioreg", "-n", "IOAppleBluetoothHIDDriver"], stdout=subprocess.PIPE).communicate()[0]
+    KeyBatStatCmd = subprocess.Popen(["/usr/sbin/ioreg", "-nS", "IOAppleBluetoothHIDDriver"], stdout=subprocess.PIPE).communicate()[0]
     KeyBatStatCmdOut = re.search('BatteryPercent" = (\d{1,2})', KeyBatStatCmd)
     if KeyBatStatCmdOut:
 	KeyBatStat = KeyBatStatCmdOut.group(1)
@@ -66,7 +66,7 @@ class Timer(NSObject):
     else:
 	KeyBatStat = None
 
-    MightyMouseBatStatCmd = subprocess.Popen(["ioreg", "-rc", "AppleBluetoothHIDMouse"], stdout=subprocess.PIPE).communicate()[0]
+    MightyMouseBatStatCmd = subprocess.Popen(["/usr/sbin/ioreg", "-rc", "AppleBluetoothHIDMouse"], stdout=subprocess.PIPE).communicate()[0]
     if MightyMouseBatStatCmd:
     	MightyMouseBatStatCmdOut = re.search('BatteryPercent" = (\d{1,2})', MightyMouseBatStatCmd)
 	MightyMouseBatStat = MightyMouseBatStatCmdOut.group(1)
@@ -75,7 +75,7 @@ class Timer(NSObject):
     else:
 	MightyMouseBatStat = None
 
-    MagicMouseBatStatCmd = subprocess.Popen(["ioreg", "-rc", "BNBMouseDevice"], stdout=subprocess.PIPE).communicate()[0]
+    MagicMouseBatStatCmd = subprocess.Popen(["/usr/sbin/ioreg", "-rc", "BNBMouseDevice"], stdout=subprocess.PIPE).communicate()[0]
     if MagicMouseBatStatCmd:
     	MagicMouseBatStatCmdOut = re.search('BatteryPercent" = (\d{1,2})', MagicMouseBatStatCmd)
 	MagicMouseBatStat = MagicMouseBatStatCmdOut.group(1)
@@ -84,7 +84,7 @@ class Timer(NSObject):
     else:
 	MagicMouseBatStat = None
 
-    TPBatStatCmd = subprocess.Popen(["ioreg", "-rc", "BNBTrackpadDevice"], stdout=subprocess.PIPE).communicate()[0]
+    TPBatStatCmd = subprocess.Popen(["/usr/sbin/ioreg", "-rc", "BNBTrackpadDevice"], stdout=subprocess.PIPE).communicate()[0]
     if TPBatStatCmd:
     	TPBatStatCmdOut = re.search('BatteryPercent" = (\d{1,2})', TPBatStatCmd)
 	TPBatStat = TPBatStatCmdOut.group(1)
