@@ -44,14 +44,14 @@ class Timer(NSObject):
 
     #Create menu
     self.menu = NSMenu.alloc().init()
-    self.menu.addItem_(menuAppName)
-    self.menu.addItem_(self.separator_menu_item)
-    self.menu.addItem_(menuQuit)
 
     # Get the timer going
     self.timer = NSTimer.alloc().initWithFireDate_interval_target_selector_userInfo_repeats_(start_time, 10.0, self, 'tick:', None, True)
     NSRunLoop.currentRunLoop().addTimer_forMode_(self.timer, NSDefaultRunLoopMode)
     self.timer.fire()
+
+    self.menu.addItem_(self.separator_menu_item)
+    self.menu.addItem_(menuQuit)
 
   def tick_(self, notification):
     if debug:
@@ -143,8 +143,10 @@ class Timer(NSObject):
 	self.noDevice = self.statusbar.statusItemWithLength_(NSVariableStatusItemLength)
 	self.noDevice.setImage_(self.noDeviceImage)
         self.noDevice.setHighlightMode_(1)
+        menuAppName = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_('BtBatStat: No Apple bluetooth input device found.', '', '')
+        self.menu.addItem_(menuAppName)
         self.noDevice.setMenu_(self.menu)
-        self.noDevice.setToolTip_('BtBatStat: No Apple mouse or keyboard found!')
+        self.noDevice.setToolTip_('BtBatStat: No Apple bluetooth input device found.')
     elif (self.MagicMouseBat is not None or self.KeyBat is not None) and self.noDevice is not None:
 	self.statusbar.removeStatusItem_(self.noDevice)
 	self.noDevice = None
@@ -158,3 +160,4 @@ if __name__ == "__main__":
   delegate = Timer.alloc().init()
   app.setDelegate_(delegate)
   AppHelper.runEventLoop()
+
