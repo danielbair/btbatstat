@@ -32,18 +32,19 @@ class Timer(NSObject):
   tpImage = NSImage.alloc().initByReferencingFile_('icons/TrackpadIcon.png')
   noDeviceImage = NSImage.alloc().initByReferencingFile_('icons/no_device.png')
 
+  #Define menu items
+  statusbar = NSStatusBar.systemStatusBar()
+  menuAppName = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_('BtBatStat', 'website:', '')
+  separator_menu_item = NSMenuItem.separatorItem()
+  menuQuit = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_('Quit', 'terminate:', '')
+
   def website_(self, notification):
     webbrowser.open("http://code.google.com/p/btbatstat/")
 
   def applicationDidFinishLaunching_(self, notification):
-    #Define menu items
-    self.statusbar = NSStatusBar.systemStatusBar()
-    menuAppName = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_('BtBatStat', 'website:', '')
-    self.separator_menu_item = NSMenuItem.separatorItem()
-    menuQuit = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_('Quit', 'terminate:', '')
-
     #Create menu
     self.menu = NSMenu.alloc().init()
+    self.menu.addItem_(self.menuAppName)
 
     # Get the timer going
     self.timer = NSTimer.alloc().initWithFireDate_interval_target_selector_userInfo_repeats_(start_time, 10.0, self, 'tick:', None, True)
@@ -51,15 +52,18 @@ class Timer(NSObject):
     self.timer.fire()
 
     self.menu.addItem_(self.separator_menu_item)
-    self.menu.addItem_(menuQuit)
+    self.menu.addItem_(self.menuQuit)
 
   def tick_(self, notification):
     if debug:
 	start = time.time()
 
-    KeyBatStatCmd = subprocess.Popen(["/usr/sbin/ioreg", "-nS", "IOAppleBluetoothHIDDriver"], stdout=subprocess.PIPE).communicate()[0]
+    devicesFound = 0
+
+    KeyBatStatCmd = subprocess.Popen(["/usr/sbin/ioreg", "-n", "IOAppleBluetoothHIDDriver"], stdout=subprocess.PIPE).communicate()[0]
     KeyBatStatCmdOut = re.search('BatteryPercent" = (\d{1,2})', KeyBatStatCmd)
     if KeyBatStatCmdOut:
+	devicesFound += 1
 	KeyBatStat = KeyBatStatCmdOut.group(1)
         if debug:
             print "Keyboard battery: ", KeyBatStat
@@ -68,6 +72,7 @@ class Timer(NSObject):
 
     MightyMouseBatStatCmd = subprocess.Popen(["/usr/sbin/ioreg", "-rc", "AppleBluetoothHIDMouse"], stdout=subprocess.PIPE).communicate()[0]
     if MightyMouseBatStatCmd:
+	devicesFound += 1
     	MightyMouseBatStatCmdOut = re.search('BatteryPercent" = (\d{1,2})', MightyMouseBatStatCmd)
 	MightyMouseBatStat = MightyMouseBatStatCmdOut.group(1)
         if debug:
@@ -77,6 +82,7 @@ class Timer(NSObject):
 
     MagicMouseBatStatCmd = subprocess.Popen(["/usr/sbin/ioreg", "-rc", "BNBMouseDevice"], stdout=subprocess.PIPE).communicate()[0]
     if MagicMouseBatStatCmd:
+	devicesFound += 1
     	MagicMouseBatStatCmdOut = re.search('BatteryPercent" = (\d{1,2})', MagicMouseBatStatCmd)
 	MagicMouseBatStat = MagicMouseBatStatCmdOut.group(1)
         if debug:
@@ -86,6 +92,7 @@ class Timer(NSObject):
 
     TPBatStatCmd = subprocess.Popen(["/usr/sbin/ioreg", "-rc", "BNBTrackpadDevice"], stdout=subprocess.PIPE).communicate()[0]
     if TPBatStatCmd:
+	devicesFound += 1
     	TPBatStatCmdOut = re.search('BatteryPercent" = (\d{1,2})', TPBatStatCmd)
 	TPBatStat = TPBatStatCmdOut.group(1)
         if debug:
@@ -99,9 +106,7 @@ class Timer(NSObject):
 	self.KeyBat.setImage_(self.kbImage)
         self.KeyBat.setHighlightMode_(1)
         self.KeyBat.setMenu_(self.menu)
-        if debug:
-            print "No device found..."
-      self.KeyBat.setTitle_(KeyBatStat +'%')
+      self.KeyBat.setTitle_(KeyBatStat + '%')
     elif self.KeyBat is not None:
       self.statusbar.removeStatusItem_(self.KeyBat)
       self.KeyBat = None
@@ -139,15 +144,19 @@ class Timer(NSObject):
       self.statusbar.removeStatusItem_(self.TPBat)
       self.TPBat = None
 
-    if self.MagicMouseBat is None and self.KeyBat is None and self.TPBat is None and self.noDevice is None:
+    if debug:
+	print "Found", devicesFound, "Devices."
+
+    if devicesFound == 0 and self.noDevice is None:
 	self.noDevice = self.statusbar.statusItemWithLength_(NSVariableStatusItemLength)
 	self.noDevice.setImage_(self.noDeviceImage)
         self.noDevice.setHighlightMode_(1)
+        self.menu.removeItem_(self.menuAppName)
         menuAppName = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_('BtBatStat: No Apple bluetooth input device found.', '', '')
         self.menu.addItem_(menuAppName)
         self.noDevice.setMenu_(self.menu)
         self.noDevice.setToolTip_('BtBatStat: No Apple bluetooth input device found.')
-    elif (self.MagicMouseBat is not None or self.KeyBat is not None) and self.noDevice is not None:
+    elif devicesFound > 0 and self.noDevice is not None:
 	self.statusbar.removeStatusItem_(self.noDevice)
 	self.noDevice = None
 
