@@ -13,8 +13,8 @@ setup(
     options=dict(py2app=dict(
         plist=dict(
             LSUIElement=True,
-	    CFBundleShortVersionString="0.5",
-	    CFBundleVersion="0.5",
+	    CFBundleShortVersionString="0.6",
+	    CFBundleVersion="0.6",
 	    CFBundleIconFile="BtBatStat.icns",
 	    CFBundleIdentifier="org.vandalon.BtBatStat",
 	    NSHumanReadableCopyright="Joris Vandalon",
