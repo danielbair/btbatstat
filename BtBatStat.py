@@ -60,7 +60,9 @@ class Timer(NSObject):
 
     devicesFound = 0
 
-    KeyBatStatCmd = subprocess.Popen(["/usr/sbin/ioreg", "-n", "IOAppleBluetoothHIDDriver"], stdout=subprocess.PIPE).communicate()[0]
+    KeyBatStatCmd = subprocess.Popen(["/usr/sbin/ioreg", "-rc", "AppleBluetoothHIDKeyboard"], stdout=subprocess.PIPE).communicate()[0]
+    if not KeyBatStatCmd:
+        KeyBatStatCmd = subprocess.Popen(["/usr/sbin/ioreg", "-n", "IOAppleBluetoothHIDDriver"], stdout=subprocess.PIPE).communicate()[0]
     KeyBatStatCmdOut = re.search('BatteryPercent" = (\d{1,2})', KeyBatStatCmd)
     if KeyBatStatCmdOut:
 	devicesFound += 1
