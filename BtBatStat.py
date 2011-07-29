@@ -65,35 +65,37 @@ class Timer(NSObject):
         KeyBatStatCmd = subprocess.Popen(["/usr/sbin/ioreg", "-n", "IOAppleBluetoothHIDDriver"], stdout=subprocess.PIPE).communicate()[0]
     KeyBatStatCmdOut = re.search('BatteryPercent" = (\d{1,2})', KeyBatStatCmd)
     if KeyBatStatCmdOut:
+	if debug:
+	    print "Found Apple BT Keyboard..."
 	devicesFound += 1
 	KeyBatStat = KeyBatStatCmdOut.group(1)
-        if debug:
-            print "Keyboard battery: ", KeyBatStat
     else:
 	KeyBatStat = None
 
     MightyMouseBatStatCmd = subprocess.Popen(["/usr/sbin/ioreg", "-rc", "AppleBluetoothHIDMouse"], stdout=subprocess.PIPE).communicate()[0]
     if MightyMouseBatStatCmd:
+	if debug:
+	    print "Found Apple BT Mighty Mouse..."
 	devicesFound += 1
     	MightyMouseBatStatCmdOut = re.search('BatteryPercent" = (\d{1,2})', MightyMouseBatStatCmd)
 	MightyMouseBatStat = MightyMouseBatStatCmdOut.group(1)
-        if debug:
-            print "Mighty Mouse battery: ", KeyBatStat
     else:
 	MightyMouseBatStat = None
 
     MagicMouseBatStatCmd = subprocess.Popen(["/usr/sbin/ioreg", "-rc", "BNBMouseDevice"], stdout=subprocess.PIPE).communicate()[0]
     if MagicMouseBatStatCmd:
+	if debug:
+	    print "Found Apple BT Magic Mouse..."
 	devicesFound += 1
     	MagicMouseBatStatCmdOut = re.search('BatteryPercent" = (\d{1,2})', MagicMouseBatStatCmd)
 	MagicMouseBatStat = MagicMouseBatStatCmdOut.group(1)
-        if debug:
-            print "Magic Mouse battery: ", KeyBatStat
     else:
 	MagicMouseBatStat = None
 
     TPBatStatCmd = subprocess.Popen(["/usr/sbin/ioreg", "-rc", "BNBTrackpadDevice"], stdout=subprocess.PIPE).communicate()[0]
     if TPBatStatCmd:
+	if debug:
+	    print "Found Apple BT Magic Trackpad..."
 	devicesFound += 1
     	TPBatStatCmdOut = re.search('BatteryPercent" = (\d{1,2})', TPBatStatCmd)
 	TPBatStat = TPBatStatCmdOut.group(1)
@@ -150,6 +152,8 @@ class Timer(NSObject):
 	print "Found", devicesFound, "Devices."
 
     if devicesFound == 0 and self.noDevice is None:
+	if debug:
+	    print "Did not found any Apple BT devices..."
 	self.noDevice = self.statusbar.statusItemWithLength_(NSVariableStatusItemLength)
 	self.noDevice.setImage_(self.noDeviceImage)
         self.noDevice.setHighlightMode_(1)
