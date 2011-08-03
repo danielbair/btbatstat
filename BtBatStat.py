@@ -29,9 +29,6 @@ if options.debug is True:
 
 start_time = NSDate.date()
 
-appUrl = 'http://code.google.com/p/btbatstat/'
-updateUrl = 'http://code.google.com/p/btbatstat/downloads/list'
-
 def versionCheck():
     try:
 	LATEST = urllib2.urlopen("http://btbatstat.vandalon.org/VERSION", None, 1).read().strip()
@@ -54,6 +51,9 @@ class Timer(NSObject):
   MightyMouseBat = None
   TPBat = None
   noDevice = None
+  appUrl = 'http://code.google.com/p/btbatstat/'
+  updateUrl = 'http://code.google.com/p/btbatstat/downloads/list'
+
 
   # Load images
   kbImage = NSImage.alloc().initByReferencingFile_('icons/kb.png')
