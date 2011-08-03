@@ -1,4 +1,4 @@
-import subprocess,re,time,sys,webbrowser
+import subprocess,re,time,sys,webbrowser,urllib2,decimal
 from Foundation import NSDate,NSObject,NSTimer,NSRunLoop,NSDefaultRunLoopMode
 from AppKit import NSImage,NSStatusBar,NSMenuItem,NSApplication,NSMenu,NSVariableStatusItemLength,NSRunAlertPanel
 from PyObjCTools import AppHelper
@@ -7,11 +7,16 @@ from optparse import OptionParser
 if len(sys.argv) > 1 and sys.argv[1][:4] == '-psn':
   del sys.argv[1]
 
+VERSION = '0.8'
+
 AboutText = """Writen by: Joris Vandalon
 Code License: New BSD License
 
 This software will always be free of charge.
 Donation can be done via the website and will be much appreciated.
+"""
+
+updateText = """There is a new version of BtBatStat Available.
 """
 
 debug = None
@@ -23,6 +28,14 @@ if options.debug is True:
   debug = 1
 
 start_time = NSDate.date()
+
+def versionCheck():
+    try:
+	LATEST = urllib2.urlopen("http://btbatstat.vandalon.org/VERSION", None, 1).read().strip()
+    except:
+	return 0
+    if LATEST and decimal.Decimal(LATEST) > decimal.Decimal(VERSION):
+	return 1
 
 class Timer(NSObject):
   statusbar = None
@@ -46,7 +59,11 @@ class Timer(NSObject):
   menuQuit = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_('Quit', 'terminate:', '')
 
   def about_(self, notification):
-    about = NSRunAlertPanel("BtBatStat 0.8", AboutText , "OK", "Visit Website", None )
+    if versionCheck():
+	AboutTitle = "BtBatstat " + VERSION + " (Update Available!)"
+    else:
+	AboutTitle = "BtBatstat " + VERSION
+    about = NSRunAlertPanel(AboutTitle, AboutText , "OK", "Visit Website", None )
     if about == 0:
       webbrowser.open("http://code.google.com/p/btbatstat/")
 	
@@ -54,6 +71,12 @@ class Timer(NSObject):
     #Create menu
     self.menu = NSMenu.alloc().init()
     self.menu.addItem_(self.menuAbout)
+
+    #Check for new version
+    if versionCheck():
+        check = NSRunAlertPanel("BtBatStat 0.8", updateText , "Visit Website", "Ignore for now", None )
+	if check == 1:
+	    webbrowser.open("http://code.google.com/p/btbatstat/downloads/list")
 
     # Get the timer going
     self.timer = NSTimer.alloc().initWithFireDate_interval_target_selector_userInfo_repeats_(start_time, 10.0, self, 'tick:', None, True)
