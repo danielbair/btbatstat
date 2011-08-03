@@ -1,4 +1,4 @@
-import subprocess,re,time,sys,webbrowser,urllib2,decimal
+import subprocess,re,time,sys,webbrowser,urllib2,decimal,threading
 from Foundation import NSDate,NSObject,NSTimer,NSRunLoop,NSDefaultRunLoopMode
 from AppKit import NSImage,NSStatusBar,NSMenuItem,NSApplication,NSMenu,NSVariableStatusItemLength,NSRunAlertPanel
 from PyObjCTools import AppHelper
@@ -29,6 +29,9 @@ if options.debug is True:
 
 start_time = NSDate.date()
 
+appUrl = 'http://code.google.com/p/btbatstat/'
+updateUrl = 'http://code.google.com/p/btbatstat/downloads/list'
+
 def versionCheck():
     try:
 	LATEST = urllib2.urlopen("http://btbatstat.vandalon.org/VERSION", None, 1).read().strip()
@@ -37,6 +40,13 @@ def versionCheck():
     if LATEST and decimal.Decimal(LATEST) > decimal.Decimal(VERSION):
 	return 1
 
+#Check for new version
+def checkForUpdates():
+    if versionCheck():
+	check = NSRunAlertPanel("BtBatStat 0.8", updateText , "Download Update", "Ignore for now", None )
+	if check == 1:
+	    webbrowser.open(self.updateUrl)
+
 class Timer(NSObject):
   statusbar = None
   KeyBat = None
@@ -44,8 +54,6 @@ class Timer(NSObject):
   MightyMouseBat = None
   TPBat = None
   noDevice = None
-  appUrl = 'http://code.google.com/p/btbatstat/'
-  updateUrl = 'http://code.google.com/p/btbatstat/downloads/list'
 
   # Load images
   kbImage = NSImage.alloc().initByReferencingFile_('icons/kb.png')
@@ -63,10 +71,10 @@ class Timer(NSObject):
   def about_(self, notification):
     if versionCheck():
 	AboutTitle = "BtBatstat " + VERSION + " (Update Available!)"
-        about = NSRunInformationalAlertPanel(AboutTitle, AboutText , "OK", "Visit Website", "Download Update" )
+        about = NSRunAlertPanel(AboutTitle, AboutText , "OK", "Visit Website", "Download Update" )
     else:
 	AboutTitle = "BtBatstat " + VERSION
-        about = NSRunInformationalAlertPanel(AboutTitle, AboutText , "OK", "Visit Website", None )
+        about = NSRunAlertPanel(AboutTitle, AboutText , "OK", "Visit Website", None )
     if about == 0:
       webbrowser.open(self.appUrl)
     elif about == -1:
@@ -76,12 +84,6 @@ class Timer(NSObject):
     #Create menu
     self.menu = NSMenu.alloc().init()
 
-    #Check for new version
-    if versionCheck():
-        check = NSRunInformationalAlertPanel("BtBatStat 0.8", updateText , "Download Update", "Ignore for now", None )
-	if check == 1:
-	    webbrowser.open(self.updateUrl)
-
     # Get the timer going
     self.timer = NSTimer.alloc().initWithFireDate_interval_target_selector_userInfo_repeats_(start_time, 10.0, self, 'tick:', None, True)
     NSRunLoop.currentRunLoop().addTimer_forMode_(self.timer, NSDefaultRunLoopMode)
@@ -90,6 +92,9 @@ class Timer(NSObject):
     self.menu.addItem_(self.menuAbout)
     self.menu.addItem_(self.separator_menu_item)
     self.menu.addItem_(self.menuQuit)
+
+    #Check for updates
+    checkForUpdates()
 
   def tick_(self, notification):
     if debug:
@@ -192,10 +197,10 @@ class Timer(NSObject):
 	self.noDevice = self.statusbar.statusItemWithLength_(NSVariableStatusItemLength)
 	self.noDevice.setImage_(self.noDeviceImage)
         self.noDevice.setHighlightMode_(1)
-        menuNotice = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_('BtBatStat: No Apple bluetooth input device found.', '', '')
+        menuNotice = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_('BtBatStat: No devices found.', '', '')
         self.menu.addItem_(menuNotice)
         self.noDevice.setMenu_(self.menu)
-        self.noDevice.setToolTip_('BtBatStat: No Apple bluetooth input device found.')
+        self.noDevice.setToolTip_('BtBatStat: No devices found.')
     elif devicesFound > 0 and self.noDevice is not None:
 	self.statusbar.removeStatusItem_(self.noDevice)
 	self.noDevice = None
