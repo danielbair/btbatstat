@@ -7,11 +7,11 @@ from optparse import OptionParser
 if len(sys.argv) > 1 and sys.argv[1][:4] == '-psn':
   del sys.argv[1]
 
-AboutText = """Writen by Joris Vandalon
+AboutText = """Writen by: Joris Vandalon
 Code License: New BSD License
 
 This software will always be free of charge.
-Donation done on the website and will be much appreciated.
+Donation can be done via the website and will be much appreciated.
 """
 
 debug = None
