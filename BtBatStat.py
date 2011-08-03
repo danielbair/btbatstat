@@ -44,6 +44,8 @@ class Timer(NSObject):
   MightyMouseBat = None
   TPBat = None
   noDevice = None
+  appUrl = 'http://code.google.com/p/btbatstat/'
+  updateUrl = 'http://code.google.com/p/btbatstat/downloads/list'
 
   # Load images
   kbImage = NSImage.alloc().initByReferencingFile_('icons/kb.png')
@@ -61,28 +63,31 @@ class Timer(NSObject):
   def about_(self, notification):
     if versionCheck():
 	AboutTitle = "BtBatstat " + VERSION + " (Update Available!)"
+        about = NSRunInformationalAlertPanel(AboutTitle, AboutText , "OK", "Visit Website", "Download Update" )
     else:
 	AboutTitle = "BtBatstat " + VERSION
-    about = NSRunAlertPanel(AboutTitle, AboutText , "OK", "Visit Website", None )
+        about = NSRunInformationalAlertPanel(AboutTitle, AboutText , "OK", "Visit Website", None )
     if about == 0:
-      webbrowser.open("http://code.google.com/p/btbatstat/")
+      webbrowser.open(self.appUrl)
+    elif about == -1:
+      webbrowser.open(self.updateUrl)
 	
   def applicationDidFinishLaunching_(self, notification):
     #Create menu
     self.menu = NSMenu.alloc().init()
-    self.menu.addItem_(self.menuAbout)
 
     #Check for new version
     if versionCheck():
-        check = NSRunAlertPanel("BtBatStat 0.8", updateText , "Visit Website", "Ignore for now", None )
+        check = NSRunInformationalAlertPanel("BtBatStat 0.8", updateText , "Download Update", "Ignore for now", None )
 	if check == 1:
-	    webbrowser.open("http://code.google.com/p/btbatstat/downloads/list")
+	    webbrowser.open(self.updateUrl)
 
     # Get the timer going
     self.timer = NSTimer.alloc().initWithFireDate_interval_target_selector_userInfo_repeats_(start_time, 10.0, self, 'tick:', None, True)
     NSRunLoop.currentRunLoop().addTimer_forMode_(self.timer, NSDefaultRunLoopMode)
     self.timer.fire()
 
+    self.menu.addItem_(self.menuAbout)
     self.menu.addItem_(self.separator_menu_item)
     self.menu.addItem_(self.menuQuit)
 
