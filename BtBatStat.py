@@ -130,9 +130,9 @@ class Timer(NSObject):
     if debug:
 	print "Found", devicesFound, "Devices."
 
-    if devicesFound == 0 and self.noDevice is None:
+    if devicesFound == 0 and not self.noDevice:
 	if debug:
-	    print "Did not found any Apple BT devices..."
+	    print "Did not find any Apple BT devices..."
 	self.noDevice = self.statusbar.statusItemWithLength_(NSVariableStatusItemLength)
 	self.noDevice.setImage_(self.noDeviceImage)
         self.noDevice.setHighlightMode_(1)
@@ -140,9 +140,9 @@ class Timer(NSObject):
         self.menu.addItem_(menuNotice)
         self.noDevice.setMenu_(self.menu)
         self.noDevice.setToolTip_('BtBatStat: No devices found.')
-    elif devicesFound > 0 and self.noDevice is not None:
+    elif devicesFound > 0 and not self.noDevice:
 	self.statusbar.removeStatusItem_(self.noDevice)
-	del self.noDevice
+	self.noDevice = None
 
     if debug:
 	end = time.time()
