@@ -18,6 +18,8 @@ Donation can be done via the website and will be much appreciated.
 
 updateText = """There is a new version of BtBatStat Available.
 """
+appUrl = 'http://code.google.com/p/btbatstat/'
+updateUrl = 'http://code.google.com/p/btbatstat/downloads/list'
 
 parser = OptionParser()
 parser.add_option("-d", action="store_true", dest="debug")
@@ -53,9 +55,9 @@ class Timer(NSObject):
 	AboutTitle = "BtBatstat " + VERSION
         about = NSRunAlertPanel(AboutTitle, AboutText , "OK", "Visit Website", None )
     if about == 0:
-      webbrowser.open(self.appUrl)
+      webbrowser.open(appUrl)
     elif about == -1:
-      webbrowser.open(self.updateUrl)
+      webbrowser.open(updateUrl)
 	
   def applicationDidFinishLaunching_(self, notification):
     #Create menu
@@ -63,9 +65,6 @@ class Timer(NSObject):
 
     self.barItem = dict()
     self.noDevice = None
-    self.appUrl = 'http://code.google.com/p/btbatstat/'
-    self.updateUrl = 'http://code.google.com/p/btbatstat/downloads/list'
-
 
     # Load images
     self.noDeviceImage = NSImage.alloc().initByReferencingFile_('icons/no_device.png')
@@ -98,8 +97,8 @@ class Timer(NSObject):
 	start = time.time()
 
     devicesFound = 0
-
-    
+   
+    #Define shell commands 
     deviceCmd = dict( kb1 = subprocess.Popen(["/usr/sbin/ioreg", "-rc", "AppleBluetoothHIDKeyboard"], stdout=subprocess.PIPE).communicate()[0],
 	kb2 = subprocess.Popen(["/usr/sbin/ioreg", "-n", "IOAppleBluetoothHIDDriver"], stdout=subprocess.PIPE).communicate()[0],
 	mightyMouse = subprocess.Popen(["/usr/sbin/ioreg", "-rc", "AppleBluetoothHIDMouse"], stdout=subprocess.PIPE).communicate()[0],
@@ -151,4 +150,3 @@ if __name__ == "__main__":
   delegate = Timer.alloc().init()
   app.setDelegate_(delegate)
   AppHelper.runEventLoop()
-
