@@ -68,11 +68,10 @@ class Timer(NSObject):
 
     # Load images
     self.noDeviceImage = NSImage.alloc().initByReferencingFile_('icons/no_device.png')
-    self.barImage = dict(kb1 = NSImage.alloc().initByReferencingFile_('icons/kb.png'),
-	kb2 = NSImage.alloc().initByReferencingFile_('icons/kb.png'),
-	magicMouse = NSImage.alloc().initByReferencingFile_('icons/magic_mouse.png'),
-	mightyMouse = NSImage.alloc().initByReferencingFile_('icons/mighty_mouse.png'),
-	magicTrackpad = NSImage.alloc().initByReferencingFile_('icons/TrackpadIcon.png'))
+    self.barImage = dict(kb = NSImage.alloc().initByReferencingFile_('icons/kb.png'),
+			 magicMouse = NSImage.alloc().initByReferencingFile_('icons/magic_mouse.png'),
+			 mightyMouse = NSImage.alloc().initByReferencingFile_('icons/mighty_mouse.png'),
+			 magicTrackpad = NSImage.alloc().initByReferencingFile_('icons/TrackpadIcon.png'))
 
     #Define menu items
     self.statusbar = NSStatusBar.systemStatusBar()
@@ -92,6 +91,9 @@ class Timer(NSObject):
     #Check for updates
     checkForUpdates()
 
+  def ioreg(self, key, flags):
+	return subprocess.Popen(["/usr/sbin/ioreg", flags, key], stdout=subprocess.PIPE).communicate()[0]
+
   def tick_(self, notification):
     if debug:
 	start = time.time()
@@ -99,11 +101,12 @@ class Timer(NSObject):
     devicesFound = 0
    
     #Define shell commands 
-    deviceCmd = dict( kb1 = subprocess.Popen(["/usr/sbin/ioreg", "-rc", "AppleBluetoothHIDKeyboard"], stdout=subprocess.PIPE).communicate()[0],
-	kb2 = subprocess.Popen(["/usr/sbin/ioreg", "-n", "IOAppleBluetoothHIDDriver"], stdout=subprocess.PIPE).communicate()[0],
-	mightyMouse = subprocess.Popen(["/usr/sbin/ioreg", "-rc", "AppleBluetoothHIDMouse"], stdout=subprocess.PIPE).communicate()[0],
-	magicMouse = subprocess.Popen(["/usr/sbin/ioreg", "-rc", "BNBMouseDevice"], stdout=subprocess.PIPE).communicate()[0],
-	magicTrackpad = subprocess.Popen(["/usr/sbin/ioreg", "-rc", "BNBTrackpadDevice"], stdout=subprocess.PIPE).communicate()[0])
+    deviceCmd = dict( mightyMouse = self.ioreg("AppleBluetoothHIDMouse","-rc"),
+	 	      magicMouse = self.ioreg("BNBMouseDevice","-rc"),
+	 	      magicTrackpad = self.ioreg("BNBTrackpadDevice","-rc"))
+    deviceCmd['kb'] = self.ioreg("AppleBluetoothHIDKeyboard","-rc")
+    if not deviceCmd['kb']:
+        deviceCmd['kb'] = self.ioreg("IOAppleBluetoothHIDDriver","-n")
 
     for device,Output in deviceCmd.items():
 	if Output:
