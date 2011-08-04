@@ -114,7 +114,7 @@ class Timer(NSObject):
 	        print Percentage
 		if debug:
 		    print "Found " + device
-		deviceFound += 1
+		devicesFound += 1
 		if not device in self.barItem:
 		    self.barItem[device] = self.statusbar.statusItemWithLength_(NSVariableStatusItemLength)
 		    self.barItem[device].setImage_(self.barImage[device])
