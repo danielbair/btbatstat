@@ -17,8 +17,7 @@ This software will always be free of charge.
 Donation can be done via the website and will be much appreciated.
 """
 
-updateText = """There is a new version of BtBatStat Available.
-"""
+updateText = "There is a new version of BtBatStat Available."
 appUrl = 'http://code.google.com/p/btbatstat/'
 updateUrl = 'http://code.google.com/p/btbatstat/downloads/list'
 
