@@ -53,11 +53,12 @@ class Timer(NSObject):
       webbrowser.open(updateUrl)
 	
   def applicationDidFinishLaunching_(self, notification):
+    self.noDevice = None
+
     #Create menu
     self.menu = NSMenu.alloc().init()
 
     self.barItem = dict()
-    self.noDevice = False
 
     # Load images
     self.noDeviceImage = NSImage.alloc().initByReferencingFile_('icons/no_device.png')
@@ -96,7 +97,6 @@ class Timer(NSObject):
     return barItem
 
   def tick_(self, notification):
-    noDevice = False
     self.devicesFound = 0
 
     if options.debug:
@@ -110,32 +110,33 @@ class Timer(NSObject):
         deviceCmd['kb'] = self.ioreg("IOAppleBluetoothHIDDriver","-n")
 
     for device,Output in deviceCmd.items():
+	Percentage = 0
 	if Output:
 	    Percentage = re.search('BatteryPercent" = (\d{1,2})', Output)
 	    if Percentage:
-	        print Percentage
+		self.hit = True
 		if options.debug:
 		    print "Found " + device
 		self.devicesFound += 1
+		if self.noDevice is not None:
+		    self.statusbar.removeStatusItem_(self.noDevice)
+        	    self.menu.removeItem_(self.menuNotice)
+		    self.noDevice = None
 		if not device in self.barItem:
 		    self.barItem[device] = self.createBarItem(self.barImage[device])
 		self.barItem[device].setTitle_(Percentage.group(1) + '%')
-	    elif device in self.barItem:
+
+	if device in self.barItem and not Percentage:
 	    	self.statusbar.removeStatusItem_(self.barItem[device])
 		del self.barItem[device]
     
     if options.debug:
 	print "Found", self.devicesFound, "Devices."
 
-    if self.devicesFound == 0 and self.noDevice == False:
-	if options.debug:
-	    print "Did not find any Apple BT devices..."
+    if self.devicesFound == 0 and self.noDevice == None:
+        self.menuNotice = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_('BtBatStat: No devices found.', '', '')
+        self.menu.insertItem_atIndex_(self.menuNotice,0)
 	self.noDevice = self.createBarItem(self.noDeviceImage)
-        menuNotice = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_('BtBatStat: No devices found.', '', '')
-        self.menu.addItem_(menuNotice)
-    elif self.devicesFound > 0 and self.noDevice == False:
-	self.statusbar.removeStatusItem_(self.noDevice)
-	self.noDevice == False
 
     if options.debug:
 	end = time.time()
