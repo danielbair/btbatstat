@@ -46,21 +46,19 @@ def checkForUpdates():
 
 class Timer(NSObject):
   statusbar = None
-  KeyBat = None
-  MagicMouseBat = None
-  MightyMouseBat = None
-  TPBat = None
+  barItem = dict()
   noDevice = None
   appUrl = 'http://code.google.com/p/btbatstat/'
   updateUrl = 'http://code.google.com/p/btbatstat/downloads/list'
 
 
   # Load images
-  kbImage = NSImage.alloc().initByReferencingFile_('icons/kb.png')
-  magicImage = NSImage.alloc().initByReferencingFile_('icons/magic_mouse.png')
-  mightyImage = NSImage.alloc().initByReferencingFile_('icons/mighty_mouse.png')
-  tpImage = NSImage.alloc().initByReferencingFile_('icons/TrackpadIcon.png')
   noDeviceImage = NSImage.alloc().initByReferencingFile_('icons/no_device.png')
+  barImage = dict(kb1 = NSImage.alloc().initByReferencingFile_('icons/kb.png'),
+	kb2 = NSImage.alloc().initByReferencingFile_('icons/kb.png'),
+	magicMouse = NSImage.alloc().initByReferencingFile_('icons/magic_mouse.png'),
+	mightyMouse = NSImage.alloc().initByReferencingFile_('icons/mighty_mouse.png'),
+	magicTrackpad = NSImage.alloc().initByReferencingFile_('icons/TrackpadIcon.png'))
 
   #Define menu items
   statusbar = NSStatusBar.systemStatusBar()
@@ -102,92 +100,32 @@ class Timer(NSObject):
 
     devicesFound = 0
 
-    KeyBatStatCmd = subprocess.Popen(["/usr/sbin/ioreg", "-rc", "AppleBluetoothHIDKeyboard"], stdout=subprocess.PIPE).communicate()[0]
-    if not KeyBatStatCmd:
-        KeyBatStatCmd = subprocess.Popen(["/usr/sbin/ioreg", "-n", "IOAppleBluetoothHIDDriver"], stdout=subprocess.PIPE).communicate()[0]
-    KeyBatStatCmdOut = re.search('BatteryPercent" = (\d{1,2})', KeyBatStatCmd)
-    if KeyBatStatCmdOut:
-	if debug:
-	    print "Found Apple BT Keyboard..."
-	devicesFound += 1
-	KeyBatStat = KeyBatStatCmdOut.group(1)
-    else:
-	KeyBatStat = None
+    
+    deviceCmd = dict( kb1 = subprocess.Popen(["/usr/sbin/ioreg", "-rc", "AppleBluetoothHIDKeyboard"], stdout=subprocess.PIPE).communicate()[0],
+	kb2 = subprocess.Popen(["/usr/sbin/ioreg", "-n", "IOAppleBluetoothHIDDriver"], stdout=subprocess.PIPE).communicate()[0],
+	mightyMouse = subprocess.Popen(["/usr/sbin/ioreg", "-rc", "AppleBluetoothHIDMouse"], stdout=subprocess.PIPE).communicate()[0],
+	magicMouse = subprocess.Popen(["/usr/sbin/ioreg", "-rc", "BNBMouseDevice"], stdout=subprocess.PIPE).communicate()[0],
+	magicTrackpad = subprocess.Popen(["/usr/sbin/ioreg", "-rc", "BNBTrackpadDevice"], stdout=subprocess.PIPE).communicate()[0])
 
-    MightyMouseBatStatCmd = subprocess.Popen(["/usr/sbin/ioreg", "-rc", "AppleBluetoothHIDMouse"], stdout=subprocess.PIPE).communicate()[0]
-    MightyMouseBatStatCmdOut = re.search('BatteryPercent" = (\d{1,2})', MightyMouseBatStatCmd)
-    if MightyMouseBatStatCmdOut:
-	if debug:
-	    print "Found Apple BT Mighty Mouse..."
-	devicesFound += 1
-	MightyMouseBatStat = MightyMouseBatStatCmdOut.group(1)
-    else:
-	MightyMouseBatStat = None
-
-    MagicMouseBatStatCmd = subprocess.Popen(["/usr/sbin/ioreg", "-rc", "BNBMouseDevice"], stdout=subprocess.PIPE).communicate()[0]
-    MagicMouseBatStatCmdOut = re.search('BatteryPercent" = (\d{1,2})', MagicMouseBatStatCmd)
-    if MagicMouseBatStatCmdOut:
-	if debug:
-	    print "Found Apple BT Magic Mouse..."
-	devicesFound += 1
-	MagicMouseBatStat = MagicMouseBatStatCmdOut.group(1)
-    else:
-	MagicMouseBatStat = None
-
-    TPBatStatCmd = subprocess.Popen(["/usr/sbin/ioreg", "-rc", "BNBTrackpadDevice"], stdout=subprocess.PIPE).communicate()[0]
-    TPBatStatCmdOut = re.search('BatteryPercent" = (\d{1,2})', TPBatStatCmd)
-    if TPBatStatCmdOut:
-	if debug:
-	    print "Found Apple BT Magic Trackpad..."
-	devicesFound += 1
-	TPBatStat = TPBatStatCmdOut.group(1)
-    else:
-	TPBatStat = None
-
-    if KeyBatStat:
-      if self.KeyBat is None:
-        self.KeyBat = self.statusbar.statusItemWithLength_(NSVariableStatusItemLength)
-	self.KeyBat.setImage_(self.kbImage)
-        self.KeyBat.setHighlightMode_(1)
-        self.KeyBat.setMenu_(self.menu)
-      self.KeyBat.setTitle_(KeyBatStat + '%')
-    elif self.KeyBat is not None:
-      self.statusbar.removeStatusItem_(self.KeyBat)
-      self.KeyBat = None
-
-    if MightyMouseBatStat is not None:
-      if self.MightyMouseBat is None:
-        self.MightyMouseBat = self.statusbar.statusItemWithLength_(NSVariableStatusItemLength)
-	self.MightyMouseBat.setImage_(self.mightyImage)
-        self.MightyMouseBat.setHighlightMode_(1)
-        self.MightyMouseBat.setMenu_(self.menu)
-      self.MightyMouseBat.setTitle_(MightyMouseBatStat +'%')
-    elif self.MightyMouseBat is not None:
-      self.statusbar.removeStatusItem_(self.MightyMouseBat)
-      self.MightyMouseBat = None
-
-    if MagicMouseBatStat:
-      if self.MagicMouseBat is None:
-        self.MagicMouseBat = self.statusbar.statusItemWithLength_(NSVariableStatusItemLength)
-	self.MagicMouseBat.setImage_(self.magicImage)
-        self.MagicMouseBat.setHighlightMode_(1)
-        self.MagicMouseBat.setMenu_(self.menu)
-      self.MagicMouseBat.setTitle_(MagicMouseBatStat +'%')
-    elif self.MagicMouseBat is not None:
-      self.statusbar.removeStatusItem_(self.MagicMouseBat)
-      self.MagicMouseBat = None
-
-    if TPBatStat:
-      if self.TPBat is None:
-        self.TPBat = self.statusbar.statusItemWithLength_(NSVariableStatusItemLength)
-	self.TPBat.setImage_(self.tpImage)
-        self.TPBat.setHighlightMode_(1)
-        self.TPBat.setMenu_(self.menu)
-      self.TPBat.setTitle_(TPBatStat +'%')
-    elif self.TPBat is not None:
-      self.statusbar.removeStatusItem_(self.TPBat)
-      self.TPBat = None
-
+    for device,Output in deviceCmd.items():
+	if Output:
+	    Percentage = re.search('BatteryPercent" = (\d{1,2})', Output)
+	    print Percentage
+	    if Percentage:
+	        print Percentage
+		if debug:
+		    print "Found " + device
+		deviceFound += 1
+		if not device in self.barItem:
+		    self.barItem[device] = self.statusbar.statusItemWithLength_(NSVariableStatusItemLength)
+		    self.barItem[device].setImage_(self.barImage[device])
+		    self.barItem[device].setHighlightMode_(1)
+		    self.barItem[device].setMenu_(self.menu)
+		self.barItem[device].setTitle_(Percentage.group(1) + '%')
+	    elif device in self.barItem:
+	    	self.statusbar.removeStatusItem_(self.barItem[device])
+		del self.barItem[device]
+    
     if debug:
 	print "Found", devicesFound, "Devices."
 
@@ -203,7 +141,7 @@ class Timer(NSObject):
         self.noDevice.setToolTip_('BtBatStat: No devices found.')
     elif devicesFound > 0 and self.noDevice is not None:
 	self.statusbar.removeStatusItem_(self.noDevice)
-	self.noDevice = None
+	del self.noDevice
 
     if debug:
 	end = time.time()
