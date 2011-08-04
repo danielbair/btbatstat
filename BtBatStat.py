@@ -100,7 +100,6 @@ class Timer(NSObject):
 
     devicesFound = 0
    
-    #Define shell commands 
     deviceCmd = dict( mightyMouse = self.ioreg("AppleBluetoothHIDMouse","-rc"),
 	 	      magicMouse = self.ioreg("BNBMouseDevice","-rc"),
 	 	      magicTrackpad = self.ioreg("BNBTrackpadDevice","-rc"))
@@ -111,7 +110,6 @@ class Timer(NSObject):
     for device,Output in deviceCmd.items():
 	if Output:
 	    Percentage = re.search('BatteryPercent" = (\d{1,2})', Output)
-	    print Percentage
 	    if Percentage:
 	        print Percentage
 		if debug:
