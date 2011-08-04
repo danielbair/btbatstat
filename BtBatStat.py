@@ -8,6 +8,7 @@ if len(sys.argv) > 1 and sys.argv[1][:4] == '-psn':
   del sys.argv[1]
 
 VERSION = '0.8'
+LONGVERSION = 'BtBatStat ' + VERSION
 
 AboutText = """Writen by: Joris Vandalon
 Code License: New BSD License
@@ -25,8 +26,6 @@ parser = OptionParser()
 parser.add_option("-d", action="store_true", dest="debug")
 (options, args)= parser.parse_args()
 
-debug = options.debug
-
 start_time = NSDate.date()
 
 def versionCheck():
@@ -34,26 +33,21 @@ def versionCheck():
 	LATEST = urllib2.urlopen("http://btbatstat.vandalon.org/VERSION", None, 2).read().strip()
     except:
 	return False
-    if LATEST and decimal.Decimal(LATEST) > decimal.Decimal(VERSION):
-	return True
-    else:
-	return False
+    return ( LATEST and decimal.Decimal(LATEST) > decimal.Decimal(VERSION) )
 
 #Check for new version
 def checkForUpdates():
     if versionCheck():
-	check = NSRunAlertPanel("BtBatStat 0.8", updateText , "Download Update", "Ignore for now", None )
-	if check == 1:
-	    webbrowser.open(self.updateUrl)
+	if NSRunAlertPanel(LONGVERSION, updateText , "Download Update", "Ignore for now", None ) == 1:
+	    webbrowser.open(updateUrl)
 
 class Timer(NSObject):
   def about_(self, notification):
     if versionCheck():
-	AboutTitle = "BtBatstat " + VERSION + " (Update Available!)"
+	AboutTitle = LONGVERSION + " (Update Available!)"
         about = NSRunAlertPanel(AboutTitle, AboutText , "OK", "Visit Website", "Download Update" )
     else:
-	AboutTitle = "BtBatstat " + VERSION
-        about = NSRunAlertPanel(AboutTitle, AboutText , "OK", "Visit Website", None )
+        about = NSRunAlertPanel(LONGVERSION, AboutText , "OK", "Visit Website", None )
     if about == 0:
       webbrowser.open(appUrl)
     elif about == -1:
@@ -64,7 +58,8 @@ class Timer(NSObject):
     self.menu = NSMenu.alloc().init()
 
     self.barItem = dict()
-    self.noDevice = None
+    self.noDevice = False
+    self.devicesFound = 0
 
     # Load images
     self.noDeviceImage = NSImage.alloc().initByReferencingFile_('icons/no_device.png')
@@ -84,6 +79,7 @@ class Timer(NSObject):
     NSRunLoop.currentRunLoop().addTimer_forMode_(self.timer, NSDefaultRunLoopMode)
     self.timer.fire()
 
+    #Add menu items
     self.menu.addItem_(self.menuAbout)
     self.menu.addItem_(self.separator_menu_item)
     self.menu.addItem_(self.menuQuit)
@@ -92,14 +88,20 @@ class Timer(NSObject):
     checkForUpdates()
 
   def ioreg(self, key, flags):
-	return subprocess.Popen(["/usr/sbin/ioreg", flags, key], stdout=subprocess.PIPE).communicate()[0]
+    return subprocess.Popen(["/usr/sbin/ioreg", flags, key], stdout=subprocess.PIPE).communicate()[0]
+
+  def createBarItem(self, icon):
+    barItem = self.statusbar.statusItemWithLength_(NSVariableStatusItemLength)
+    barItem.setImage_(icon)
+    barItem.setHighlightMode_(1)
+    barItem.setMenu_(self.menu)
+    return barItem
 
   def tick_(self, notification):
-    if debug:
+    noDevice = False
+    if options.debug:
 	start = time.time()
 
-    devicesFound = 0
-   
     deviceCmd = dict( mightyMouse = self.ioreg("AppleBluetoothHIDMouse","-rc"),
 	 	      magicMouse = self.ioreg("BNBMouseDevice","-rc"),
 	 	      magicTrackpad = self.ioreg("BNBTrackpadDevice","-rc"))
@@ -112,37 +114,30 @@ class Timer(NSObject):
 	    Percentage = re.search('BatteryPercent" = (\d{1,2})', Output)
 	    if Percentage:
 	        print Percentage
-		if debug:
+		if options.debug:
 		    print "Found " + device
-		devicesFound += 1
+		self.devicesFound += 1
 		if not device in self.barItem:
-		    self.barItem[device] = self.statusbar.statusItemWithLength_(NSVariableStatusItemLength)
-		    self.barItem[device].setImage_(self.barImage[device])
-		    self.barItem[device].setHighlightMode_(1)
-		    self.barItem[device].setMenu_(self.menu)
+		    self.barItem[device] = self.createBarItem(self.barImage[device])
 		self.barItem[device].setTitle_(Percentage.group(1) + '%')
 	    elif device in self.barItem:
 	    	self.statusbar.removeStatusItem_(self.barItem[device])
 		del self.barItem[device]
     
-    if debug:
-	print "Found", devicesFound, "Devices."
+    if options.debug:
+	print "Found", self.devicesFound, "Devices."
 
-    if devicesFound == 0 and not self.noDevice:
-	if debug:
+    if self.devicesFound == 0 and self.noDevice == False:
+	if options.debug:
 	    print "Did not find any Apple BT devices..."
-	self.noDevice = self.statusbar.statusItemWithLength_(NSVariableStatusItemLength)
-	self.noDevice.setImage_(self.noDeviceImage)
-        self.noDevice.setHighlightMode_(1)
+	self.noDevice = self.createBarItem(self.noDeviceImage)
         menuNotice = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_('BtBatStat: No devices found.', '', '')
         self.menu.addItem_(menuNotice)
-        self.noDevice.setMenu_(self.menu)
-        self.noDevice.setToolTip_('BtBatStat: No devices found.')
-    elif devicesFound > 0 and not self.noDevice:
+    elif self.devicesFound > 0 and self.noDevice == False:
 	self.statusbar.removeStatusItem_(self.noDevice)
-	self.noDevice = None
+	self.noDevice == False
 
-    if debug:
+    if options.debug:
 	end = time.time()
 	print "Time elapsed = ", end - start, "seconds"
 
