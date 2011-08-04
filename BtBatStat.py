@@ -19,13 +19,11 @@ Donation can be done via the website and will be much appreciated.
 updateText = """There is a new version of BtBatStat Available.
 """
 
-debug = None
 parser = OptionParser()
 parser.add_option("-d", action="store_true", dest="debug")
 (options, args)= parser.parse_args()
 
-if options.debug is True:
-  debug = 1
+debug = options.debug
 
 start_time = NSDate.date()
 
@@ -33,9 +31,11 @@ def versionCheck():
     try:
 	LATEST = urllib2.urlopen("http://btbatstat.vandalon.org/VERSION", None, 1).read().strip()
     except:
-	return 0
+	return False
     if LATEST and decimal.Decimal(LATEST) > decimal.Decimal(VERSION):
-	return 1
+	return True
+    else:
+	return False
 
 #Check for new version
 def checkForUpdates():
@@ -45,27 +45,6 @@ def checkForUpdates():
 	    webbrowser.open(self.updateUrl)
 
 class Timer(NSObject):
-  statusbar = None
-  barItem = dict()
-  noDevice = None
-  appUrl = 'http://code.google.com/p/btbatstat/'
-  updateUrl = 'http://code.google.com/p/btbatstat/downloads/list'
-
-
-  # Load images
-  noDeviceImage = NSImage.alloc().initByReferencingFile_('icons/no_device.png')
-  barImage = dict(kb1 = NSImage.alloc().initByReferencingFile_('icons/kb.png'),
-	kb2 = NSImage.alloc().initByReferencingFile_('icons/kb.png'),
-	magicMouse = NSImage.alloc().initByReferencingFile_('icons/magic_mouse.png'),
-	mightyMouse = NSImage.alloc().initByReferencingFile_('icons/mighty_mouse.png'),
-	magicTrackpad = NSImage.alloc().initByReferencingFile_('icons/TrackpadIcon.png'))
-
-  #Define menu items
-  statusbar = NSStatusBar.systemStatusBar()
-  menuAbout = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_('About BtBatStat', 'about:', '')
-  separator_menu_item = NSMenuItem.separatorItem()
-  menuQuit = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_('Quit', 'terminate:', '')
-
   def about_(self, notification):
     if versionCheck():
 	AboutTitle = "BtBatstat " + VERSION + " (Update Available!)"
@@ -81,6 +60,26 @@ class Timer(NSObject):
   def applicationDidFinishLaunching_(self, notification):
     #Create menu
     self.menu = NSMenu.alloc().init()
+
+    self.barItem = dict()
+    self.noDevice = None
+    self.appUrl = 'http://code.google.com/p/btbatstat/'
+    self.updateUrl = 'http://code.google.com/p/btbatstat/downloads/list'
+
+
+    # Load images
+    self.noDeviceImage = NSImage.alloc().initByReferencingFile_('icons/no_device.png')
+    barImage = dict(kb1 = NSImage.alloc().initByReferencingFile_('icons/kb.png'),
+	kb2 = NSImage.alloc().initByReferencingFile_('icons/kb.png'),
+	magicMouse = NSImage.alloc().initByReferencingFile_('icons/magic_mouse.png'),
+	mightyMouse = NSImage.alloc().initByReferencingFile_('icons/mighty_mouse.png'),
+	magicTrackpad = NSImage.alloc().initByReferencingFile_('icons/TrackpadIcon.png'))
+
+    #Define menu items
+    self.statusbar = NSStatusBar.systemStatusBar()
+    self.menuAbout = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_('About BtBatStat', 'about:', '')
+    self.separator_menu_item = NSMenuItem.separatorItem()
+    self.menuQuit = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_('Quit', 'terminate:', '')
 
     # Get the timer going
     self.timer = NSTimer.alloc().initWithFireDate_interval_target_selector_userInfo_repeats_(start_time, 10.0, self, 'tick:', None, True)
