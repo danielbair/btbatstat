@@ -58,7 +58,6 @@ class Timer(NSObject):
 
     self.barItem = dict()
     self.noDevice = False
-    self.devicesFound = 0
 
     # Load images
     self.noDeviceImage = NSImage.alloc().initByReferencingFile_('icons/no_device.png')
@@ -98,6 +97,8 @@ class Timer(NSObject):
 
   def tick_(self, notification):
     noDevice = False
+    self.devicesFound = 0
+
     if options.debug:
 	start = time.time()
 
