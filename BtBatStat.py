@@ -1,4 +1,4 @@
-import subprocess,re,time,sys,webbrowser,urllib2,decimal,threading
+import subprocess,re,time,sys,webbrowser,urllib2,decimal
 from Foundation import NSDate,NSObject,NSTimer,NSRunLoop,NSDefaultRunLoopMode
 from AppKit import NSImage,NSStatusBar,NSMenuItem,NSApplication,NSMenu,NSVariableStatusItemLength,NSRunAlertPanel
 from PyObjCTools import AppHelper
@@ -31,7 +31,7 @@ start_time = NSDate.date()
 
 def versionCheck():
     try:
-	LATEST = urllib2.urlopen("http://btbatstat.vandalon.org/VERSION", None, 1).read().strip()
+	LATEST = urllib2.urlopen("http://btbatstat.vandalon.org/VERSION", None, 2).read().strip()
     except:
 	return False
     if LATEST and decimal.Decimal(LATEST) > decimal.Decimal(VERSION):
@@ -68,7 +68,7 @@ class Timer(NSObject):
 
     # Load images
     self.noDeviceImage = NSImage.alloc().initByReferencingFile_('icons/no_device.png')
-    barImage = dict(kb1 = NSImage.alloc().initByReferencingFile_('icons/kb.png'),
+    self.barImage = dict(kb1 = NSImage.alloc().initByReferencingFile_('icons/kb.png'),
 	kb2 = NSImage.alloc().initByReferencingFile_('icons/kb.png'),
 	magicMouse = NSImage.alloc().initByReferencingFile_('icons/magic_mouse.png'),
 	mightyMouse = NSImage.alloc().initByReferencingFile_('icons/mighty_mouse.png'),
