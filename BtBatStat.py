@@ -7,7 +7,7 @@ from optparse import OptionParser
 if len(sys.argv) > 1 and sys.argv[1][:4] == '-psn':
   del sys.argv[1]
 
-VERSION = '0.8'
+VERSION = '0.9'
 LONGVERSION = 'BtBatStat ' + VERSION
 
 AboutText = """Writen by: Joris Vandalon
@@ -29,10 +29,10 @@ start_time = NSDate.date()
 
 def versionCheck():
     try:
-	LATEST = urllib2.urlopen("http://btbatstat.vandalon.org/VERSION", None, 2).read().strip()
+	LatestRelease = urllib2.urlopen("http://btbatstat.vandalon.org/VERSION", None, 2).read().strip()
     except:
 	return False
-    return ( LATEST and decimal.Decimal(LATEST) > decimal.Decimal(VERSION) )
+    return ( LatestRelease and map(int, LatestRelease.split('.')) > map(int, VERSION.split('.')) )
 
 #Check for new version
 def checkForUpdates():
