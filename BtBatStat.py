@@ -112,7 +112,7 @@ class Timer(NSObject):
     for device,Output in deviceCmd.items():
 	Percentage = 0
 	if Output:
-	    Percentage = re.search('BatteryPercent" = (\d{1,2})', Output)
+	    Percentage = re.search('BatteryPercent" = (\d{1,2}0?)', Output)
 	    if Percentage:
 		self.hit = True
 		if options.debug:
