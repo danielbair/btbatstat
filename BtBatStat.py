@@ -14,7 +14,7 @@ AboutText = """Writen by: Joris Vandalon
 Code License: New BSD License
 
 This software will always be free of charge.
-Donation can be done via the website and will be much appreciated.
+Donations can be done via the website and will be much appreciated.
 """
 
 updateText = "There is a new version of BtBatStat Available."
