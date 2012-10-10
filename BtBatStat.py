@@ -7,10 +7,11 @@ from optparse import OptionParser
 if len(sys.argv) > 1 and sys.argv[1][:4] == '-psn':
   del sys.argv[1]
 
-VERSION = '0.9'
+VERSION = '0.9.1'
 LONGVERSION = 'BtBatStat ' + VERSION
 
 AboutText = """Writen by: Joris Vandalon
+App Icon Design by: FIF7Y
 Code License: New BSD License
 
 This software will always be free of charge.
