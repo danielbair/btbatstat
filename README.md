@@ -9,3 +9,5 @@ Supported devices:
     Apple Magic Trackpad 
 
 Other device may or may not work :)
+
+Download app from https://btbatstat.googlecode.com/files/BtBatStat-0.9.zip
